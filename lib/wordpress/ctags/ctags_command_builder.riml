@@ -10,18 +10,18 @@ class CTagsCommandBuilder
     cmd   = self.get_executable()
     cmd .= " -R"
     cmd .= " -f #{shellescape(self.get_tags_name())}"
-    cmd .= " --tag-relative"
+    cmd .= " --tag-relative=yes"
 
-    re   = self.to_invocation_regex('action', 'a', 'do_action')
+    re   = self.to_invocation_regex('action', 'A', 'do_action')
     cmd .= " --regex-PHP=#{shellescape(re)}"
 
-    re   = self.to_listener_regex('alistener', 'l', 'add_action')
+    re   = self.to_listener_regex('alistener', 'L', 'add_action')
     cmd .= " --regex-PHP=#{shellescape(re)}"
 
-    re   = self.to_invocation_regex('filter', 'r', 'apply_filters')
+    re   = self.to_invocation_regex('filter', 'R', 'apply_filters')
     cmd .= " --regex-PHP=#{shellescape(re)}"
 
-    re   = self.to_listener_regex('flistener', 'e', 'add_filter')
+    re   = self.to_listener_regex('flistener', 'E', 'add_filter')
     cmd .= " --regex-PHP=#{shellescape(re)}"
 
     " exclude files to fix #16
@@ -46,6 +46,9 @@ class CTagsCommandBuilder
     add(dirs, 'build')
     add(dirs, 'dist')
     add(dirs, 'vendor')
+    add(dirs, '"*.js"')
+    add(dirs, '"*.css"')
+    add(dirs, '"*.scss"')
 
     return dirs
   end
@@ -122,7 +125,7 @@ class CTagsCommandBuilder
 
     ctags_version = system(self.get_executable() . ' --version')
 
-    if ctags_version =~ 'Exuberant Ctags'
+    if ctags_version =~ '\(Exuberant\|Universal\) Ctags'
       self.exuberant_found = true
     else
       self.exuberant_found = false
