@@ -1431,6 +1431,7 @@ endfunction
 
 function! s:CTagsBuilder_run(cmd) dict
   let result = system(a:cmd)
+  echom result
   return [v:shell_error, result]
 endfunction
 
@@ -1546,20 +1547,21 @@ function! s:CTagsCommandBuilder_build() dict
   let cmd = self.get_executable()
   let cmd .= " -R"
   let cmd .= " -f " . shellescape(self.get_tags_name())
-  let cmd .= " --tag-relative"
-  let re = self.to_invocation_regex('action', 'a', 'do_action')
+  let cmd .= " --tag-relative=yes"
+  let re = self.to_invocation_regex('action', 'A', 'do_action')
   let cmd .= " --regex-PHP=" . shellescape(re)
-  let re = self.to_listener_regex('alistener', 'l', 'add_action')
+  let re = self.to_listener_regex('alistener', 'L', 'add_action')
   let cmd .= " --regex-PHP=" . shellescape(re)
-  let re = self.to_invocation_regex('filter', 'r', 'apply_filters')
+  let re = self.to_invocation_regex('filter', 'R', 'apply_filters')
   let cmd .= " --regex-PHP=" . shellescape(re)
-  let re = self.to_listener_regex('flistener', 'e', 'add_filter')
+  let re = self.to_listener_regex('flistener', 'E', 'add_filter')
   let cmd .= " --regex-PHP=" . shellescape(re)
   let dirs = self.get_exclude_dirs()
   for dir in dirs
     let cmd .= " --exclude=" . dir
   endfor
   let cmd .= " ."
+  "echom cmd
   return cmd
 endfunction
 
@@ -1572,6 +1574,9 @@ function! s:CTagsCommandBuilder_get_exclude_dirs() dict
   call add(dirs, 'build')
   call add(dirs, 'dist')
   call add(dirs, 'vendor')
+  call add(dirs, '"*.js"')
+  call add(dirs, '"*.css"')
+  call add(dirs, '"*.scss"')
   return dirs
 endfunction
 
@@ -1649,7 +1654,7 @@ function! s:CTagsCommandBuilder_has_exuberant_executable() dict
     return self.exuberant_found
   endif
   let ctags_version = system(self.get_executable() . ' --version')
-  if ctags_version =~# 'Exuberant Ctags'
+  if ctags_version =~# '\(Exuberant\|Universal\) Ctags'
     let self.exuberant_found = 1
   else
     let self.exuberant_found = 0
